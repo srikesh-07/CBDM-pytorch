@@ -48,7 +48,7 @@ class ImbalanceCIFAR10(datasets.CIFAR100):
                 img_num_per_cls.append(int(img_max * imb_factor))
         else:
             img_num_per_cls.extend([int(img_max)] * cls_num)
-        return
+        return img_num_per_cls
 
     def get_data_distribution(self):
         dist = dict()
