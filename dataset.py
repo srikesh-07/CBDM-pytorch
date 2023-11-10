@@ -48,7 +48,19 @@ class ImbalanceCIFAR10(datasets.CIFAR100):
                 img_num_per_cls.append(int(img_max * imb_factor))
         else:
             img_num_per_cls.extend([int(img_max)] * cls_num)
-        return img_num_per_cls
+        return
+
+    def get_data_distribution(self):
+        dist = dict()
+        for idx, target in enumerate(self.targets):
+            if dist.get(int(target), None) is None:
+                dist[int(target)] = 1
+            else:
+                dist[int(target)] += 1
+        sorted_dist = dict(sorted(dist.items(), key=lambda item: item[1], reverse=True))
+        return {'classes': self.classes,
+                'data_dist': sorted_dist,
+                'total_imgs': int(self.__len__())}
 
     def gen_imbalanced_data(self, img_num_per_cls):
         new_data = []
@@ -116,6 +128,18 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         else:
             img_num_per_cls.extend([int(img_max)] * cls_num)
         return img_num_per_cls
+
+    def get_data_distribution(self):
+        dist = dict()
+        for idx, target in enumerate(self.targets):
+            if dist.get(int(target), None) is None:
+                dist[int(target)] = 1
+            else:
+                dist[int(target)] += 1
+        sorted_dist = dict(sorted(dist.items(), key=lambda item: item[1], reverse=True))
+        return {'classes': self.classes,
+                'data_dist': sorted_dist,
+                'total_imgs': int(self.__len__())}
 
     def gen_imbalanced_data(self, img_num_per_cls):
         new_data = []

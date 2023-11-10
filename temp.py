@@ -14,6 +14,7 @@ tran_transform = transforms.Compose([
     transforms.Resize([32, 32])
 ])
 
+
 def get_classwise_indices(dataset):
     indices = dict()
     for idx in range(len(dataset)):
