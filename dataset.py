@@ -29,7 +29,7 @@ class CatDogCIFAR10(datasets.CIFAR100):
     def __init__(self, root, imb_type='exp', imb_factor=0.01, rand_number=0, train=True,
                  transform=None, target_transform=None, download=False):
         super(CatDogCIFAR10, self).__init__(root, train, transform, target_transform, download)
-        cat_id, dog_id = self.classes.index('cat'), self.classes.index('dog')
+        cat_id, dog_id = self.classes.index('deer'), self.classes.index('horse')
         imgs = list()
         targets = list()
         cat_cnt = 0
