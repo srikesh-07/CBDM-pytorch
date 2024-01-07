@@ -16,7 +16,7 @@ from torchvision import transforms
 from diffusion import GaussianDiffusionTrainer, GaussianDiffusionSampler
 from model.model import UNet
 from utils.augmentation import *
-from dataset import ImbalanceCIFAR100, ImbalanceCIFAR10
+from dataset import ImbalanceCIFAR100, ImbalanceCIFAR10, CatDogCIFAR10
 from score.both import get_inception_and_fid_score
 from utils.augmentation import KarrasAugmentationPipeline
 
@@ -189,16 +189,18 @@ def train():
                 download=True,
                 transform=tran_transform)
     elif FLAGS.data_type == 'cifar10lt':
-        dataset = ImbalanceCIFAR10(
-                root=FLAGS.root,
-                # root='...',
-                imb_type='exp',
-                imb_factor=FLAGS.imb_factor,
-                rand_number=0,
-                train=True,
-                transform=tran_transform,
-                target_transform=None,
-                download=True)
+        # dataset = ImbalanceCIFAR10(
+        #         root=FLAGS.root,
+        #         # root='...',
+        #         imb_type='exp',
+        #         imb_factor=FLAGS.imb_factor,
+        #         rand_number=0,
+        #         train=True,
+        #         transform=tran_transform,
+        #         target_transform=None,
+        #         download=True)
+        dataset = CatDogCIFAR10(root=FLAGS.root)
+        print(f" Dataset: CatDogCIFAR10 \nClasses: {dataset.classes} \nIDS: {set(dataset.targets)} \nTotal Number of Images: {len(dataset)} \nNumber of Cat Images: {dataset.num_cats} \nNumber of Dogs Images: {dataset.num_dogs}")
     elif FLAGS.data_type == 'cifar100lt':
         dataset = ImbalanceCIFAR100(
                 root='/GPFS/data/yimingqin/dd_code/backdoor/benchmarks/pytorch-ddpm/data',
@@ -212,6 +214,8 @@ def train():
                 download=True)
     else:
         print('Please enter a data type included in [cifar10, cifar100, cifar10lt, cifar100lt]')
+    
+    FLAGS.num_class = len(dataset.classes)
 
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=FLAGS.batch_size,
@@ -227,7 +231,8 @@ def train():
     weight = class_counter(dataset.targets)
 
     # model setup
-    FLAGS.num_class = 100 if 'cifar100' in FLAGS.data_type else 10
+    # FLAGS.num_class = 100 if 'cifar100' in FLAGS.data_type else 10
+    # FLAGS.num_class = len(dataset.classes)
     net_model = UNet(
         T=FLAGS.T, ch=FLAGS.ch, ch_mult=FLAGS.ch_mult, attn=FLAGS.attn,
         num_res_blocks=FLAGS.num_res_blocks, dropout=FLAGS.dropout,
@@ -356,7 +361,7 @@ def train():
 
 
 def eval():
-    FLAGS.num_class = 100 if 'cifar100' in FLAGS.data_type else 10
+    # FLAGS.num_class = 100 if 'cifar100' in FLAGS.data_type else 10
     model = UNet(
         T=FLAGS.T, ch=FLAGS.ch, ch_mult=FLAGS.ch_mult, attn=FLAGS.attn,
         num_res_blocks=FLAGS.num_res_blocks, dropout=FLAGS.dropout,
