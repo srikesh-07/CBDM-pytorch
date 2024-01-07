@@ -203,7 +203,7 @@ def train():
                                 train=True,
                                 download=True,
                                 transform=tran_transform)
-        print(f" Dataset: CatDogCIFAR10 \nClasses: {dataset.classes} \nIDS: {set(dataset.targets)} \nTotal Number of Images: {len(dataset)} \nNumber of Cat Images: {dataset.num_cats} \nNumber of Dogs Images: {dataset.num_dogs}")
+        print(f" Dataset: DeerHorseCIFAR10 \nClasses: {dataset.classes} \nIDS: {set(dataset.targets)} \nTotal Number of Images: {len(dataset)} \nNumber of Deer Images: {dataset.num_cats} \nNumber of Horse Images: {dataset.num_dogs}")
     elif FLAGS.data_type == 'cifar100lt':
         dataset = ImbalanceCIFAR100(
                 root='/GPFS/data/yimingqin/dd_code/backdoor/benchmarks/pytorch-ddpm/data',
