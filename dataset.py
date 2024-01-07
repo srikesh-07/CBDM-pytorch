@@ -35,7 +35,7 @@ class CatDogCIFAR10(datasets.CIFAR100):
         cat_cnt = 0
         dog_cnt = 0
         for idx, id in enumerate(self.targets):
-            if len(targets) <= CatDogCIFAR10.num_dogs + CatDogCIFAR10.num_cats:
+            if len(targets) < CatDogCIFAR10.num_dogs + CatDogCIFAR10.num_cats:
                 if id == cat_id:
                     if cat_cnt <= CatDogCIFAR10.num_cats:
                         imgs.append(self.data[idx])
