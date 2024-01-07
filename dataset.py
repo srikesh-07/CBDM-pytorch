@@ -35,16 +35,19 @@ class CatDogCIFAR10(datasets.CIFAR100):
         cat_cnt = 0
         dog_cnt = 0
         for idx, id in enumerate(self.targets):
-            if id == cat_id:
-                if cat_cnt <= CatDogCIFAR10.num_cats:
-                    imgs.append(self.data[idx])
-                    targets.append(0)
-                    cat_cnt += 1
-            elif id  == dog_id:
-                if dog_cnt <= CatDogCIFAR10.num_dogs:
-                    imgs.append(self.data[idx])
-                    targets.append(1)                    
-                    dog_cnt += 1
+            if len(targets) <= CatDogCIFAR10.num_dogs + CatDogCIFAR10.num_cats:
+                if id == cat_id:
+                    if cat_cnt <= CatDogCIFAR10.num_cats:
+                        imgs.append(self.data[idx])
+                        targets.append(0)
+                        cat_cnt += 1
+                elif id  == dog_id:
+                    if dog_cnt <= CatDogCIFAR10.num_dogs:
+                        imgs.append(self.data[idx])
+                        targets.append(1)                    
+                        dog_cnt += 1
+            else:
+                break
         
         assert len(targets) == CatDogCIFAR10.num_dogs + CatDogCIFAR10.num_cats
         
