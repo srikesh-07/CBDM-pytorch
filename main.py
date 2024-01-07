@@ -199,7 +199,10 @@ def train():
         #         transform=tran_transform,
         #         target_transform=None,
         #         download=True)
-        dataset = CatDogCIFAR10(root=FLAGS.root)
+        dataset = CatDogCIFAR10(root=FLAGS.root,
+                                train=True,
+                                download=True,
+                                transform=tran_transform)
         print(f" Dataset: CatDogCIFAR10 \nClasses: {dataset.classes} \nIDS: {set(dataset.targets)} \nTotal Number of Images: {len(dataset)} \nNumber of Cat Images: {dataset.num_cats} \nNumber of Dogs Images: {dataset.num_dogs}")
     elif FLAGS.data_type == 'cifar100lt':
         dataset = ImbalanceCIFAR100(
