@@ -53,8 +53,8 @@ class CatDogCIFAR10(datasets.CIFAR100):
         
         self.data = imgs
         self.targets = targets
-        self.classes = ['cats', 'dogs']
-        self.class_to_idx = {0: 'cats', 1: 'dogs'}
+        self.classes = ['deer', 'horse']
+        self.class_to_idx = {0: 'deer', 1: 'horse'}
 
 
 class ImbalanceCIFAR10(datasets.CIFAR100):
