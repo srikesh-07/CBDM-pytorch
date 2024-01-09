@@ -184,23 +184,15 @@ class GaussianDiffusionSampler(nn.Module):
 
         return model_mean, model_log_var
 
-    def forward(self, x_T, omega=0.0, method='cfg'):
+    def forward(self, x_T, omega=0.0, method='cfg', y=None):
         """
         Algorithm 2.
         """
         x_t = x_T.clone()
-        y = list()
-
         # if method == 'uncond':
         #     y = None
         # else:
         #     y = torch.randint(0, self.num_class, (len(x_t),)).to(x_t.device)
-        for cls_id in range(100):
-            for _ in range(500):
-                y.append(cls_id)
-        
-        y = torch.tensor(y, dtype=torch.long)
-
         with torch.no_grad():
             for time_step in tqdm(reversed(range(0, self.T)), total=self.T):
                 t = x_T.new_ones([x_T.shape[0], ], dtype=torch.long) * time_step

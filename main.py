@@ -120,6 +120,11 @@ def evaluate(sampler, model, sampled):
             for i in trange(0, FLAGS.num_images, FLAGS.batch_size, desc=desc):
                 batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
                 x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
+                y = list()
+                for cls_id in range(100):
+                    for _ in range(500):
+                        y.append(cls_id)
+                y = torch.tensor(y, dtype=torch.long)
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
                                                      method=FLAGS.sample_method)
