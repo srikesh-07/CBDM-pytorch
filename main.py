@@ -117,6 +117,7 @@ def evaluate(sampler, model, sampled):
             images = []
             labels = []
             desc = 'generating images'
+            tracker = 0
             for i in trange(0, FLAGS.num_images, FLAGS.batch_size, desc=desc):
                 batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
                 x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
@@ -128,10 +129,12 @@ def evaluate(sampler, model, sampled):
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
                                                      method=FLAGS.sample_method,
-                                                     y=y)
+                                                     y=y[tracker: batch_size])
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
+                tracker += batch_size
+            
             images = torch.cat(images, dim=0)
             labels = torch.cat(labels, dim=0)
     #     np.save(os.path.join(FLAGS.logdir, '{}_{}_samples_ema_{}.npy'.format(
