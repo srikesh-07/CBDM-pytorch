@@ -127,31 +127,33 @@ def evaluate(sampler, model, sampled):
                 y = torch.tensor(y, dtype=torch.long)
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
-                                                     method=FLAGS.sample_method)
+                                                     method=FLAGS.sample_method,
+                                                     y=y)
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
-            images = torch.cat(images, dim=0).numpy()
-        np.save(os.path.join(FLAGS.logdir, '{}_{}_samples_ema_{}.npy'.format(
-                                            FLAGS.sample_method, FLAGS.omega,
-                                            FLAGS.sample_name)), images)
-        if FLAGS.sample_method != 'uncond':
-            labels = torch.cat(labels, dim=0).numpy()
-            np.save(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
-                                            FLAGS.sample_method, FLAGS.omega,
-                                            FLAGS.sample_name)), labels)
-        model.train()
-    else:
-        labels = None
-        images = np.load(os.path.join(FLAGS.logdir, '{}_{}_samples_ema_{}.npy'.format(
-                                            FLAGS.sample_method, FLAGS.omega,
-                                            FLAGS.sample_name)))
+            images = torch.cat(images, dim=0)
+            labels = torch.cat(labels, dim=0)
+    #     np.save(os.path.join(FLAGS.logdir, '{}_{}_samples_ema_{}.npy'.format(
+    #                                         FLAGS.sample_method, FLAGS.omega,
+    #                                         FLAGS.sample_name)), images)
+    #     if FLAGS.sample_method != 'uncond':
+    #         labels = torch.cat(labels, dim=0).numpy()
+    #         np.save(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
+    #                                         FLAGS.sample_method, FLAGS.omega,
+    #                                         FLAGS.sample_name)), labels)
+    #     model.train()
+    # else:
+    #     labels = None
+    #     images = np.load(os.path.join(FLAGS.logdir, '{}_{}_samples_ema_{}.npy'.format(
+    #                                         FLAGS.sample_method, FLAGS.omega,
+    #                                         FLAGS.sample_name)))
 
-        if FLAGS.sample_method != 'uncond':
-            labels = np.load(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
-                                                FLAGS.sample_method, FLAGS.omega,
-                                                FLAGS.sample_name)))
-    # save_image(
+    #     if FLAGS.sample_method != 'uncond':
+    #         labels = np.load(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
+    #                                             FLAGS.sample_method, FLAGS.omega,
+    #                                             FLAGS.sample_name)))
+    # # save_image(
     #     torch.tensor(images[:256]),
     #     os.path.join(FLAGS.logdir, 'visual_ema_{}_{}_{}.png'.format(
     #                                 FLAGS.sample_method, FLAGS.omega, FLAGS.sample_name)),
