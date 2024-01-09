@@ -133,6 +133,7 @@ def evaluate(sampler, model, sampled):
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
+                print("TRACKER: {tracker}, BATCH_SIZE: {batch_size}")
                 tracker += batch_size
             
             images = torch.cat(images, dim=0)
