@@ -4,6 +4,7 @@ import os
 import warnings
 from absl import app, flags
 from tqdm import trange
+import shutil
 
 import torch
 import numpy as np
@@ -145,11 +146,21 @@ def evaluate(sampler, model, sampled):
             labels = np.load(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
                                                 FLAGS.sample_method, FLAGS.omega,
                                                 FLAGS.sample_name)))
-    save_image(
-        torch.tensor(images[:256]),
-        os.path.join(FLAGS.logdir, 'visual_ema_{}_{}_{}.png'.format(
-                                    FLAGS.sample_method, FLAGS.omega, FLAGS.sample_name)),
-        nrow=16)
+    # save_image(
+    #     torch.tensor(images[:256]),
+    #     os.path.join(FLAGS.logdir, 'visual_ema_{}_{}_{}.png'.format(
+    #                                 FLAGS.sample_method, FLAGS.omega, FLAGS.sample_name)),
+    #     nrow=16)
+    save_dir = os.path.join(FLAGS.logdir, 'generated_images')
+    if os.path.isdir(save_dir):
+        print("[WARNING] Existing Images saving directory will be deleted..")
+        shutil.rmtree(save_dir)
+    os.makedirs(save_dir, exist_ok=True)
+    for img_id in range(images.shape[0]):
+        save_image(images[img_id],
+                   os.path.join(save_dir, f'gen_{img_id}_{labels[img_id]}.png'))
+    print("[INFO] Successfully generated images...")
+    exit(0)
 
     (IS, IS_std), FID, prd_score, ipr = get_inception_and_fid_score(
         images, labels, FLAGS.fid_cache, num_images=FLAGS.num_images,

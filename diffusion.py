@@ -87,7 +87,7 @@ class GaussianDiffusionTrainer(nn.Module):
             loss_reg = weight * F.mse_loss(h, h_bal.detach(), reduction='none')
             loss_com = weight * F.mse_loss(h.detach(), h_bal, reduction='none')
 
-        return loss, loss_reg + 1/4 * loss_com
+        return loss.mean(), (loss_reg + 1/4 * loss_com).mean()
 
 class GaussianDiffusionSampler(nn.Module):
     def __init__(self, model, beta_1, beta_T, T, num_class, img_size=32, var_type='fixedlarge'):
@@ -189,12 +189,17 @@ class GaussianDiffusionSampler(nn.Module):
         Algorithm 2.
         """
         x_t = x_T.clone()
-        y = None
+        y = list()
 
-        if method == 'uncond':
-            y = None
-        else:
-            y = torch.randint(0, self.num_class, (len(x_t),)).to(x_t.device)
+        # if method == 'uncond':
+        #     y = None
+        # else:
+        #     y = torch.randint(0, self.num_class, (len(x_t),)).to(x_t.device)
+        for cls_id in range(100):
+            for _ in range(500):
+                y.append(cls_id)
+        
+        y = torch.tensor(y, dtype=torch.long)
 
         with torch.no_grad():
             for time_step in tqdm(reversed(range(0, self.T)), total=self.T):
