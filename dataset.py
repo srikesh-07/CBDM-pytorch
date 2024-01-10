@@ -1,6 +1,6 @@
 import numpy as np
 import torchvision.datasets as datasets
-
+import os
 
 
 class ImbalanceCIFAR10(datasets.CIFAR100):
@@ -94,12 +94,27 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
     cls_num = 100
 
     def __init__(self, root, imb_type='exp', imb_factor=0.01, rand_number=0, train=True,
-                 transform=None, target_transform=None, download=False):
+                 transform=None, target_transform=None, download=False, additional_data=None):
         super(ImbalanceCIFAR100, self).__init__(root, train, transform, target_transform, download)
         np.random.seed(rand_number)
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
+
+    def _add_additional_data(self, path: str):
+        assert os.path.isdir(path), "Invalid Additional data DIR"
+        if not hasattr(self, 'data'):
+            print("[WARNING] Initializing the self.data for Additional data.")
+            self.data = []
+        if not hasattr(self, 'targets'):
+            print("[WARNING] Initializing the self.targets for Additional data.")
+            self.targets = []
+        print('[INFO] Total Number of images before additional data: ', len(self.__len__()))
+        for img in os.listdir(path):
+            self.data.append(os.path.join(path, img))
+            self.targets.append(int(os.path.splitext(img)[0].split('_')[-1]))
+        print('[INFO] Total Number of images after additional data: ', len(self.__len__()))
+
 
     def get_img_num_per_cls(self, cls_num, imb_type, imb_factor):
         img_max = len(self.data) / cls_num
