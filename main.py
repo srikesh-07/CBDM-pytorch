@@ -129,7 +129,7 @@ def evaluate(sampler, model, sampled):
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
                                                      method=FLAGS.sample_method,
-                                                     y=y[tracker: batch_size])
+                                                     y=y[tracker: tracker + batch_size])
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
