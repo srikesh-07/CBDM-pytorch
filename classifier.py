@@ -30,7 +30,7 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet32',
                     ' (default: resnet32)')
 parser.add_argument('--extra_data', default=None, type=str, metavar='N',
                     help='Extra data needs to be added')
-parser.add_arguement('--exp-name', type='str', help="Experiment Name")
+parser.add_argument('--exp-name', type=str, help="Experiment Name")
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=200, type=int, metavar='N',
@@ -163,14 +163,16 @@ def main():
             'best_prec1': best_prec1,
         }, is_best, filename=os.path.join(args.save_dir, 'model.th'))
 
-    with open('metrics.txt', 'a') as txt_file:
-        txt_file.write(f'/n{json.dumps({
+    write_str = json.dumps(
+          {
             'exp_name': args.exp_name,
             'model': args.arch,
             'dataset': 'CIFAR100',
             'extra_data': args.extra_data,
-            'Best Accuracy': str(best_prec1)
-        }}\n')
+            'Best Accuracy': str(round(best_prec1, 3))
+          }, indent=4)
+    with open('metrics.txt', 'a') as txt_file:
+        txt_file.write(f"\n{write_str}\n")
 
 
 def train(train_loader, model, criterion, optimizer, epoch):
