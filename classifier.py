@@ -13,6 +13,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
 from resnet import resnet32
+import resnet
 
 model_names = sorted(name for name in resnet.__dict__
     if name.islower() and not name.startswith("__")
