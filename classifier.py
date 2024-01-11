@@ -12,7 +12,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
-from torch.datasets import CIFAR100
+from torchvision.datasets import CIFAR100
 from resnet import resnet32
 from sklearn.metrics import precision_score, recall_score
 import resnet
