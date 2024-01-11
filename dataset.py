@@ -100,6 +100,8 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
+        if additional_data is not None:    
+            self._add_additional_data(additional_data)
 
     def _add_additional_data(self, path: str):
         assert os.path.isdir(path), "Invalid Additional data DIR"
