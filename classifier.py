@@ -13,7 +13,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
 from resnet import resnet32
-import sklean
+import sklearn
 import resnet
 import json
 
