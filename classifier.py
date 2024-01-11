@@ -12,6 +12,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
+from torch.datasets import CIFAR100
 from resnet import resnet32
 from sklearn.metrics import precision_score, recall_score
 import resnet
@@ -106,7 +107,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        ImbalanceCIFAR100(root='./data', train=False, transform=transforms.Compose([
+        CIFAR100(root='./data', train=False, transform=transforms.Compose([
             transforms.ToTensor(),
             normalize,
         ])),
