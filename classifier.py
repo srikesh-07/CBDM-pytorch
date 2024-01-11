@@ -13,7 +13,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
 from resnet import resnet32
-import sklearn
+from sklearn.metrics import precision_score, recall_score
 import resnet
 import json
 
@@ -281,8 +281,8 @@ def validate(val_loader, model, criterion):
                           i, len(val_loader), batch_time=batch_time, loss=losses,
                           top1=top1))
 
-    precision = sklearn.metrics.precision_score(y_true, y_pred, average='micro')
-    recall = sklearn.metrics.recall_score(y_true, y_pred, average='micro')
+    precision = precision_score(y_true, y_pred, average='micro')
+    recall = recall_score(y_true, y_pred, average='micro')
     
     print(' * Prec@1 {top1.avg:.3f}'
           .format(top1=top1))
