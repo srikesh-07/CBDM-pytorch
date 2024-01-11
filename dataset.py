@@ -111,11 +111,11 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         if not hasattr(self, 'targets'):
             print("[WARNING] Initializing the self.targets for Additional data.")
             self.targets = []
-        print('[INFO] Total Number of images before additional data: ', len(self.__len__()))
+        print('[INFO] Total Number of images before additional data: ', self.__len__())
         for img in os.listdir(path):
             self.data.append(os.path.join(path, img))
             self.targets.append(int(os.path.splitext(img)[0].split('_')[-1]))
-        print('[INFO] Total Number of images after additional data: ', len(self.__len__()))
+        print('[INFO] Total Number of images after additional data: ', self.__len__())
 
 
     def get_img_num_per_cls(self, cls_num, imb_type, imb_factor):
