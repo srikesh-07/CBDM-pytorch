@@ -171,8 +171,8 @@ def main():
             'dataset': 'CIFAR100',
             'extra_data': args.extra_data,
             'Best Accuracy': str(round(best_prec1, 3)),
-            'Best Precision': str(precision),
-            'Best Recall': str(recall)
+            'Best Precision': str(precision) * 100,
+            'Best Recall': str(recall) * 100
           }, indent=4)
     with open('metrics.txt', 'a') as txt_file:
         txt_file.write(f"\n{write_str}\n")
@@ -266,8 +266,9 @@ def validate(val_loader, model, criterion):
             prec1 = accuracy(output.data, target)[0]
             losses.update(loss.item(), input.size(0))
             top1.update(prec1.item(), input.size(0))
-            y_pred.extend(output.data.tolist())
-            y_true.append(target.tolist())
+            _, pred = output.topk(1, 1, True, True)
+            y_pred.extend(pred.tolist())
+            y_true.extend(target.tolist())
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -286,9 +287,9 @@ def validate(val_loader, model, criterion):
     
     print(' * Prec@1 {top1.avg:.3f}'
           .format(top1=top1))
-    print(f'* Precision {round(precision, 3)}\n* Recall {round(recall, 3)}')
+    print(f' * Precision {round(precision * 100, 3)}\n * Recall {round(recall * 100, 3)}')
 
-    return top1.avg, round(precision, 3), round(recall, 3)
+    return top1.avg, round(precision * 100, 3), round(recall * 100, 3)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     """
