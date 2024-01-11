@@ -13,6 +13,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from dataset import ImbalanceCIFAR100
 from resnet import resnet32
+import sklean
 import resnet
 import json
 
@@ -145,7 +146,7 @@ def main():
         lr_scheduler.step()
 
         # evaluate on validation set
-        prec1 = validate(val_loader, model, criterion)
+        prec1, precision, recall = validate(val_loader, model, criterion)
 
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
@@ -169,7 +170,9 @@ def main():
             'model': args.arch,
             'dataset': 'CIFAR100',
             'extra_data': args.extra_data,
-            'Best Accuracy': str(round(best_prec1, 3))
+            'Best Accuracy': str(round(best_prec1, 3)),
+            'Best Precision': str(precision),
+            'Best Recall': str(recall)
           }, indent=4)
     with open('metrics.txt', 'a') as txt_file:
         txt_file.write(f"\n{write_str}\n")
@@ -236,6 +239,8 @@ def validate(val_loader, model, criterion):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
+    y_pred = list()
+    y_true = list()
 
     # switch to evaluate mode
     model.eval()
@@ -261,6 +266,8 @@ def validate(val_loader, model, criterion):
             prec1 = accuracy(output.data, target)[0]
             losses.update(loss.item(), input.size(0))
             top1.update(prec1.item(), input.size(0))
+            y_pred.extend(output.data.tolist())
+            y_true.append(target.tolist())
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -274,10 +281,14 @@ def validate(val_loader, model, criterion):
                           i, len(val_loader), batch_time=batch_time, loss=losses,
                           top1=top1))
 
+    precision = sklearn.metrics.precision_score(y_true, y_pred, average='micro')
+    recall = sklearn.metrics.recall_score(y_true, y_pred, average='micro')
+    
     print(' * Prec@1 {top1.avg:.3f}'
           .format(top1=top1))
+    print(f'* Precision {round(precision, 3)}\n* Recall {round(recall, 3)}')
 
-    return top1.avg
+    return top1.avg, round(precision, 3), round(recall, 3)
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     """
