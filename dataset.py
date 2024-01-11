@@ -2,6 +2,7 @@ import numpy as np
 import torchvision.datasets as datasets
 import os
 from PIL import Image
+from tqdm import tqdm
 
 class ImbalanceCIFAR10(datasets.CIFAR100):
     base_folder = "cifar-10-batches-py"
@@ -117,7 +118,8 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         print('[INFO] Total Number of images before additional data: ', self.__len__())
         data = []
 
-        for img in os.listdir(path):
+        print('[INFO] Loading Additional Data')
+        for img in tqdm(os.listdir(path)):
             data.append(np.array(Image.open(os.path.join(path, img))))
             self.targets.append(int(os.path.splitext(img)[0].split('_')[-1]))
         
