@@ -102,7 +102,7 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
-        print(self.targets)
+        
         if additional_data is not None:    
             self._add_additional_data(additional_data)
 
@@ -118,7 +118,7 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         data = []
 
         for img in os.listdir(path):
-            data.append(np.array(Image.open(img)))
+            data.append(np.array(Image.open(os.path.join(path, img))))
             self.targets.append(int(os.path.splitext(img)[0].split('_')[-1]))
         
         self.data = np.concatenate([self.data, data], axis=0)
