@@ -1,7 +1,7 @@
 import numpy as np
 import torchvision.datasets as datasets
 import os
-
+from PIL import Image
 
 class ImbalanceCIFAR10(datasets.CIFAR100):
     base_folder = "cifar-10-batches-py"
@@ -33,6 +33,8 @@ class ImbalanceCIFAR10(datasets.CIFAR100):
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
+        print(self.data)
+
 
     def get_img_num_per_cls(self, cls_num, imb_type, imb_factor):
         img_max = len(self.data) / cls_num
@@ -100,6 +102,7 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
+        print(self.targets)
         if additional_data is not None:    
             self._add_additional_data(additional_data)
 
@@ -107,14 +110,19 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         assert os.path.isdir(path), "Invalid Additional data DIR"
         if not hasattr(self, 'data'):
             print("[WARNING] Initializing the self.data for Additional data.")
-            self.data = []
+            self.data = np.array([])
         if not hasattr(self, 'targets'):
             print("[WARNING] Initializing the self.targets for Additional data.")
-            self.targets = []
+            self.targets = np.array([])
         print('[INFO] Total Number of images before additional data: ', self.__len__())
+        data = []
+
         for img in os.listdir(path):
-            self.data.append(os.path.join(path, img))
+            data.append(np.array(Image.open(img)))
             self.targets.append(int(os.path.splitext(img)[0].split('_')[-1]))
+        
+        self.data = np.concatenate([self.data, data], axis=0)
+        print(self.data.shape)
         print('[INFO] Total Number of images after additional data: ', self.__len__())
 
 
@@ -156,3 +164,4 @@ class ImbalanceCIFAR100(datasets.CIFAR100):
         for i in range(self.cls_num):
             cls_num_list.append(self.num_per_cls_dict[i])
         return cls_num_list
+        
