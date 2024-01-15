@@ -111,6 +111,7 @@ def save_embeddings(loader, save_dir, name):
     np.save(os.path.join(save_dir, f"{name}_embeddings.npy"), embeddings)
     print(f"Saved the Embeddings as {name}_embeddings.npy")
 
+    print(f"Creating and Saving the T-SNe Plots.")
     plot_tsne(embeddings, y, save_dir, name)
 
 def main():
