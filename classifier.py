@@ -17,6 +17,8 @@ from torchvision.datasets import CIFAR100
 from resnet import resnet32
 from sklearn.metrics import precision_score, recall_score
 import resnet
+import seaborn as sns
+from sklearn.manifold import TSNE
 import json
 
 model_names = sorted(name for name in resnet.__dict__
@@ -70,6 +72,22 @@ parser.add_argument('--save-every', dest='save_every',
                     type=int, default=10)
 best_prec1 = 0
 
+def plot_tsne(embeddings, names, save_dir, save_name):
+    tsne = TSNE()
+    tsne_result = tsne.fit_transform(embeddings)
+
+    fig = sns.scatterplot(x=tsne_result[:, 0], y=tsne_result[:, 1], hue=names)
+    lim = (tsne_result.min()-5, tsne_result.max()+5)
+    fig.set_xlim(lim)
+    fig.set_ylim(lim)
+    fig.set_aspect('equal')
+    fig.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+
+    fig = fig.get_figure()
+    fig.tight_layout()
+    fig.savefig(os.path.join(save_dir, save_name + '_tsne_plot.png'))
+    fig.savefig(os.path.join(save_dir, save_name + '_tsne_plot.pdf'))
+
 def save_embeddings(loader, save_dir, name):
     print(f"Started using best checkpoint for {name}")
     ckpt = torch.load(os.path.join(save_dir, 'best_model.th'))
@@ -77,32 +95,23 @@ def save_embeddings(loader, save_dir, name):
     model.cuda()
     model.eval()
     print("Loaded the best checkpoint")
-
+    class_names = loader.dataset.classes
+    
     embeddings = list()
+    y = list()
     with torch.no_grad():
-        for input, _ in loader:
+        for input, cls_idx in loader:
             out = model(input.cuda())
             embeddings.append(out.cpu().numpy())
+            y.append(class_names[cls_idx])
+            
     embeddings = np.concatenate(embeddings, axis=0)
     print(f"Embeddings generation completed. Shape is {embeddings.shape}")
 
-    np.save(os.path.join(save_dir, f"{name}.npy"), embeddings)
-    print(f"Saved the Embeddings as {name}.npy")
+    np.save(os.path.join(save_dir, f"{name}_embeddings.npy"), embeddings)
+    print(f"Saved the Embeddings as {name}_embeddings.npy")
 
-def plot_tsne(embeddings, names, save_dir, save_name):
-    tsne = TSNE()
-    tsne_result = tsne.fit_transform(train)
-
-    fig = sns.scatterplot(x=tsne_result[:, 0], y=tsne_result[:, 1], hue=names)
-    lim = (tsne_result.min()-5, tsne_result.max()+5)
-    ax.set_xlim(lim)
-    ax.set_ylim(lim)
-    fig.set_aspect('equal')
-    fig.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
-
-    fig = fig.get_figure()
-    fig.tight_layout()
-    fig.savefig(os.path.join(save_dir, save_name + '.pdf'))) 
+    plot_tsne(embeddings, y, save_dir, name)
 
 def main():
     global args, best_prec1
@@ -221,8 +230,8 @@ def main():
                 'best_prec1': best_prec1,
             }, is_best, filename=os.path.join(args.save_dir, 'best_model.th'))
 
-    save_embeddings(train_loader, args.save_dir, name=f"{args.dataset}_train_embeddings")
-    save_embeddings(val_loader, args.save_dir, name=f"{args.dataset}_val_embeddings")
+    save_embeddings(train_loader, args.save_dir, name=f"{args.dataset}_train")
+    save_embeddings(val_loader, args.save_dir, name=f"{args.dataset}_val")
 
     write_str = json.dumps(
           {
