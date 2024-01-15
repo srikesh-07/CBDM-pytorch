@@ -103,7 +103,7 @@ def save_embeddings(loader, save_dir, name):
         for input, cls_idx in loader:
             out = model(input.cuda())
             embeddings.append(out.cpu().numpy())
-            y.append(class_names[cls_idx])
+            y.extend([class_names[int(idx)].title() for idx in cls_idx])
             
     embeddings = np.concatenate(embeddings, axis=0)
     print(f"Embeddings generation completed. Shape is {embeddings.shape}")
@@ -157,7 +157,7 @@ def main():
             transforms.RandomCrop(32, 4),
             transforms.ToTensor(),
             normalize,
-        ]), download=True, additional_data=args.extra_data)
+        ]), download=True)
         print(f"Loaded the Imbalance CIFAR10 dataset with Imbalance Factor-{args.imb_factor}")
 
     train_loader = torch.utils.data.DataLoader(
