@@ -89,6 +89,20 @@ def save_embeddings(loader, save_dir, name):
     np.save(os.path.join(save_dir, f"{name}.npy"), embeddings)
     print(f"Saved the Embeddings as {name}.npy")
 
+def plot_tsne(embeddings, names, save_dir, save_name):
+    tsne = TSNE()
+    tsne_result = tsne.fit_transform(train)
+
+    fig = sns.scatterplot(x=tsne_result[:, 0], y=tsne_result[:, 1], hue=names)
+    lim = (tsne_result.min()-5, tsne_result.max()+5)
+    ax.set_xlim(lim)
+    ax.set_ylim(lim)
+    fig.set_aspect('equal')
+    fig.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.0)
+
+    fig = fig.get_figure()
+    fig.tight_layout()
+    fig.savefig(os.path.join(save_dir, save_name + '.pdf'))) 
 
 def main():
     global args, best_prec1
