@@ -237,13 +237,14 @@ def main():
     write_str = json.dumps(
           {
             'exp_name': args.exp_name,
-            'model': args.arch,
-            'dataset': 'CIFAR100',
+            'model': args.arch.title(),
+            'dataset': args.dataset.upper(),
             'extra_data': args.extra_data,
             'Best Accuracy': str(round(best_prec1, 3)),
-            'Best Precision': str(precision) * 100,
-            'Best Recall': str(recall) * 100
+            'Best Precision': str(precision * 100),
+            'Best Recall': str(recall * 100)
           }, indent=4)
+    
     with open('metrics.txt', 'a') as txt_file:
         txt_file.write(f"\n{write_str}\n")
 
