@@ -241,8 +241,8 @@ def main():
             'dataset': args.dataset.upper(),
             'extra_data': args.extra_data,
             'Best Accuracy': str(round(best_prec1, 3)),
-            'Best Precision': str(precision * 100),
-            'Best Recall': str(recall * 100)
+            'Best Precision': str(precision),
+            'Best Recall': str(recall)
           }, indent=4)
     
     with open('metrics.txt', 'a') as txt_file:
