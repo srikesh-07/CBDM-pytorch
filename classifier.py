@@ -11,7 +11,8 @@ import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from dataset import ImbalanceCIFAR100
+import numpy as np
+from dataset import ImbalanceCIFAR10
 from torchvision.datasets import CIFAR100
 from resnet import resnet32
 from sklearn.metrics import precision_score, recall_score
@@ -30,6 +31,10 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet32',
                     choices=model_names,
                     help='model architecture: ' + ' | '.join(model_names) +
                     ' (default: resnet32)')
+parser.add_argument('--dataset', default="cifar10", type=str,
+                    help='Name of the dataset')
+parser.add_argument('--imb_factor', default=0.01, type=float,
+                    help='Imbalance Factor of the dataset')
 parser.add_argument('--extra_data', default=None, type=str, metavar='N',
                     help='Extra data needs to be added')
 parser.add_argument('--exp-name', type=str, help="Experiment Name")
@@ -65,6 +70,25 @@ parser.add_argument('--save-every', dest='save_every',
                     type=int, default=10)
 best_prec1 = 0
 
+def save_embeddings(loader, save_dir, name):
+    print(f"Started saving the ckeckpoins for {name}")
+    ckpt = torch.load(os.path.join(save_dir, 'best_model.th'))
+    model = resnet32(return_embeddings=True)
+    model.cuda()
+    model.eval()
+    print("Loaded the best checkpoint")
+
+    embeddings = list()
+    with torch.no_grad():
+        for input, _ in loader:
+            out = model(input)
+            embeddings.append(out.numpy())
+    embeddings = np.concatenate(embeddings, axis=0)
+    print(f"Embeddings generation completed. Shape is {embeddings.shape}")
+
+    np.save(os.path.join(save_dir, f"{name}.npy", embeddings)
+    print(f"Saved the Embeddings as {name}.npy")
+
 
 def main():
     global args, best_prec1
@@ -96,18 +120,30 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
-    train_loader = torch.utils.data.DataLoader(
-        ImbalanceCIFAR100(root='./data', train=True, transform=transforms.Compose([
+    if args.dataset == "cifar10":
+        dataset = datasets.CIFAR10(root='./data', train=True, transform=transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomCrop(32, 4),
             transforms.ToTensor(),
             normalize,
-        ]), download=True, additional_data=args.extra_data),
+        ]), download=True)
+        print(f"Loaded the CIFAR10 dataset")
+    else:
+        dataset = ImbalanceCIFAR10(root='./data', imb_factor=args.imb_factor, train=True, transform=transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(32, 4),
+            transforms.ToTensor(),
+            normalize,
+        ]), download=True, additional_data=args.extra_data)
+        print(f"Loaded the Imbalance CIFAR10 dataset with Imbalance Factor-{args.imb_factor}")
+
+    train_loader = torch.utils.data.DataLoader(
+        dataset
         batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        CIFAR100(root='./data', train=False, transform=transforms.Compose([
+        CIFAR10(root='./data', train=False, transform=transforms.Compose([
             transforms.ToTensor(),
             normalize,
         ])),
@@ -164,6 +200,15 @@ def main():
             'state_dict': model.state_dict(),
             'best_prec1': best_prec1,
         }, is_best, filename=os.path.join(args.save_dir, 'model.th'))
+
+        if is_best:
+            save_checkpoint({
+                'state_dict': model.state_dict(),
+                'best_prec1': best_prec1,
+            }, is_best, filename=os.path.join(args.save_dir, 'best_model.th'))
+
+    save_embeddings(train_loader, args.save_dir, name=f"{args.dataset}_train_embeddings")
+    save_embeddings(val_loader, args.save_dir, name=f"{args.dataset}_val_embeddings")
 
     write_str = json.dumps(
           {
