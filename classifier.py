@@ -71,7 +71,7 @@ parser.add_argument('--save-every', dest='save_every',
 best_prec1 = 0
 
 def save_embeddings(loader, save_dir, name):
-    print(f"Started saving the ckeckpoins for {name}")
+    print(f"Started using best checkpoint for {name}")
     ckpt = torch.load(os.path.join(save_dir, 'best_model.th'))
     model = resnet32(return_embeddings=True)
     model.cuda()
@@ -81,12 +81,12 @@ def save_embeddings(loader, save_dir, name):
     embeddings = list()
     with torch.no_grad():
         for input, _ in loader:
-            out = model(input)
-            embeddings.append(out.numpy())
+            out = model(input.cuda())
+            embeddings.append(out.cpu().numpy())
     embeddings = np.concatenate(embeddings, axis=0)
     print(f"Embeddings generation completed. Shape is {embeddings.shape}")
 
-    np.save(os.path.join(save_dir, f"{name}.npy", embeddings)
+    np.save(os.path.join(save_dir, f"{name}.npy"), embeddings)
     print(f"Saved the Embeddings as {name}.npy")
 
 
@@ -138,12 +138,12 @@ def main():
         print(f"Loaded the Imbalance CIFAR10 dataset with Imbalance Factor-{args.imb_factor}")
 
     train_loader = torch.utils.data.DataLoader(
-        dataset
+        dataset,
         batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        CIFAR10(root='./data', train=False, transform=transforms.Compose([
+        datasets.CIFAR10(root='./data', train=False, transform=transforms.Compose([
             transforms.ToTensor(),
             normalize,
         ])),
