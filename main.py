@@ -117,6 +117,7 @@ def evaluate(sampler, model, sampled):
             images = []
             labels = []
             desc = 'generating images'
+            FLAGS.num_images=288
             for i in trange(0, FLAGS.num_images, FLAGS.batch_size, desc=desc):
                 batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
                 x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
@@ -156,12 +157,12 @@ def evaluate(sampler, model, sampled):
     os.makedirs('viz', exist_ok=True)
     save_image(
         torch.tensor(images[:144]),
-        os.path.join('viz', f'{FLAGS.data_type}_low.pdf'),
+        os.path.join('viz', f'{os.path.basename(FLAGS.logdir)}_low.pdf'),
         nrow=12)
   
     save_image(
         torch.tensor(images[144:]),
-        os.path.join('viz', f'{FLAGS.data_type}_random.pdf'),
+        os.path.join('viz', f'{os.path.basename(FLAGS.logdir)}_random.pdf'),
         nrow=12)
 
     print("Completed")
