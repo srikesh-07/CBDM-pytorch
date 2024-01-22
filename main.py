@@ -128,9 +128,11 @@ def evaluate(sampler, model, sampled):
                 elif FLAGS.data_type == 'cifar100lt':
                   y.extend([97, 98, 99] * 48)
                   y.extend([random.randint(0, 9) for _ in range(144)])
+                y = torch.tensor(y,, dtype=torch.long)
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
-                                                     method=FLAGS.sample_method)
+                                                     method=FLAGS.sample_method,
+                                                     y=y)
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
