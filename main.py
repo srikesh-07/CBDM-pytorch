@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import random
 import warnings
 from absl import app, flags
 from tqdm import trange
@@ -119,6 +120,13 @@ def evaluate(sampler, model, sampled):
             for i in trange(0, FLAGS.num_images, FLAGS.batch_size, desc=desc):
                 batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
                 x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
+                y = list()
+                if FLAGS.data_type == 'cifar10lt':
+                  y.extend([7, 8, 9] * 48)
+                  y.extend([random.randint(0, 9) for _ in range(144)])
+                elif FLAGS.data_type == 'cifar100lt':
+                  y.extend([97, 98, 99] * 48)
+                  y.extend([random.randint(0, 9) for _ in range(144)])
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
                                                      method=FLAGS.sample_method)
@@ -145,11 +153,19 @@ def evaluate(sampler, model, sampled):
             labels = np.load(os.path.join(FLAGS.logdir, '{}_{}_labels_ema_{}.npy'.format(
                                                 FLAGS.sample_method, FLAGS.omega,
                                                 FLAGS.sample_name)))
+    os.makedirs('viz', exist_ok=True)
     save_image(
-        torch.tensor(images[:256]),
-        os.path.join(FLAGS.logdir, 'visual_ema_{}_{}_{}.png'.format(
-                                    FLAGS.sample_method, FLAGS.omega, FLAGS.sample_name)),
-        nrow=16)
+        torch.tensor(images[:144]),
+        os.path.join('viz', f'{FLAGS.data_type}_low.pdf'),
+        nrow=12)
+  
+    save_image(
+        torch.tensor(images[144:]),
+        os.path.join('viz', f'{FLAGS.data_type}_random.pdf'),
+        nrow=12)
+
+    print("Completed")
+    exit(0)
 
     (IS, IS_std), FID, prd_score, ipr = get_inception_and_fid_score(
         images, labels, FLAGS.fid_cache, num_images=FLAGS.num_images,
