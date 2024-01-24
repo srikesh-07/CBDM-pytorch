@@ -33,7 +33,7 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet32',
 parser.add_argument('--extra_data', default=None, type=str, metavar='N',
                     help='Extra data needs to be added')
 parser.add_argument('--exp-name', type=str, help="Experiment Name")
-parser.add_argument('--imb_factor', type=str, help="Imbalance Factor")
+parser.add_argument('--imb_factor', type=float, help="Imbalance Factor")
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=200, type=int, metavar='N',
