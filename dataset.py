@@ -31,6 +31,7 @@ class ImbalanceCIFAR10(datasets.CIFAR100):
                  transform=None, target_transform=None, download=False):
         super(ImbalanceCIFAR10, self).__init__(root, train, transform, target_transform, download)
         np.random.seed(rand_number)
+        print(f'[INFO] Imbalance Factor has been set to {imb_factor}')
         img_num_list = self.get_img_num_per_cls(self.cls_num, imb_type, imb_factor)
         self.num_per_cls_dict = dict()
         self.gen_imbalanced_data(img_num_list)
