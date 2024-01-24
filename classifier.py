@@ -148,11 +148,16 @@ def main():
         lr_scheduler.step()
 
         # evaluate on validation set
-        prec1, precision, recall = validate(val_loader, model, criterion)
+        prec1, precision, recall, y_raw = validate(val_loader, model, criterion)
 
         # remember best prec@1 and save checkpoint
         is_best = prec1 > best_prec1
         best_prec1 = max(prec1, best_prec1)
+
+        if is_best:
+            y_raw = torch.tensor(y_raw, dtype=torch.float16)
+            os.makedirs('./predictions', exist_ok=True)
+            torch.save(y_raw, f'./predictions/cifar10_{args.imb_factor}_pred.pt')
 
         if epoch > 0 and epoch % args.save_every == 0:
             save_checkpoint({
@@ -244,6 +249,7 @@ def validate(val_loader, model, criterion):
     top1 = AverageMeter()
     y_pred = list()
     y_true = list()
+    y_raw = list()
 
     # switch to evaluate mode
     model.eval()
@@ -260,6 +266,7 @@ def validate(val_loader, model, criterion):
 
             # compute output
             output = model(input_var)
+            y_raw.extend(output.cpu().tolist())
             loss = criterion(output, target_var)
 
             output = output.float()
@@ -292,7 +299,7 @@ def validate(val_loader, model, criterion):
           .format(top1=top1))
     print(f' * Precision {round(precision * 100, 3)}\n * Recall {round(recall * 100, 3)}')
 
-    return top1.avg, round(precision * 100, 3), round(recall * 100, 3)
+    return top1.avg, round(precision * 100, 3), round(recall * 100, 3), y_raw
 
 def save_checkpoint(state, is_best, filename='checkpoint.pth.tar'):
     """
