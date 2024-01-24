@@ -157,7 +157,7 @@ def main():
         if is_best:
             y_raw = torch.tensor(y_raw, dtype=torch.float16)
             os.makedirs('./predictions', exist_ok=True)
-            torch.save(y_raw, f'./predictions/cifar10_{args.imb_factor}_pred.pt')
+            torch.save(y_raw, f'./predictions/cifar10lt_{args.imb_factor}_pred.pt')
             print('[INFO] Predictions are stored for best model')
 
         if epoch > 0 and epoch % args.save_every == 0:
