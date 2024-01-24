@@ -11,8 +11,8 @@ import torch.optim
 import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-from dataset import ImbalanceCIFAR100
-from torchvision.datasets import CIFAR100
+from dataset import ImbalanceCIFAR10
+from torchvision.datasets import CIFAR10
 from resnet import resnet32
 from sklearn.metrics import precision_score, recall_score
 import resnet
@@ -33,6 +33,7 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet32',
 parser.add_argument('--extra_data', default=None, type=str, metavar='N',
                     help='Extra data needs to be added')
 parser.add_argument('--exp-name', type=str, help="Experiment Name")
+parser.add_argument('--imb_factor', type=str, help="Imbalance Factor")
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=200, type=int, metavar='N',
@@ -97,17 +98,17 @@ def main():
                                      std=[0.229, 0.224, 0.225])
 
     train_loader = torch.utils.data.DataLoader(
-        ImbalanceCIFAR100(root='./data', train=True, transform=transforms.Compose([
+        ImbalanceCIFAR10(root='./data', train=True, transform=transforms.Compose([
             transforms.RandomHorizontalFlip(),
             transforms.RandomCrop(32, 4),
             transforms.ToTensor(),
             normalize,
-        ]), download=True, additional_data=args.extra_data),
+        ]), download=True, imb_factor=args.imb_factor),
         batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     val_loader = torch.utils.data.DataLoader(
-        CIFAR100(root='./data', train=False, transform=transforms.Compose([
+        CIFAR10(root='./data', train=False, transform=transforms.Compose([
             transforms.ToTensor(),
             normalize,
         ])),
@@ -159,6 +160,7 @@ def main():
                 'state_dict': model.state_dict(),
                 'best_prec1': best_prec1,
             }, is_best, filename=os.path.join(args.save_dir, 'checkpoint.th'))
+            
 
         save_checkpoint({
             'state_dict': model.state_dict(),
