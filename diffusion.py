@@ -184,17 +184,23 @@ class GaussianDiffusionSampler(nn.Module):
 
         return model_mean, model_log_var
 
-    def forward(self, x_T, omega=0.0, method='cfg'):
+    def forward(self, x_T, omega=0.0, method='cfg', y=None):
         """
         Algorithm 2.
         """
         x_t = x_T.clone()
-        y = None
+        #y = None
 
-        if method == 'uncond':
-            y = None
-        else:
-            y = torch.randint(0, self.num_class, (len(x_t),)).to(x_t.device)
+        #if method == 'uncond':
+        #    y = None
+        #else:
+        #    y = torch.randint(0, self.num_class, (len(x_t),)).to(x_t.device)
+
+        #y = [0 for _ in range(100)] + 
+        #y=[1 for _ in range(50)]
+        #y = torch.tensor(y, dtype=torch.long).to('cuda:0')
+
+        print(x_t.shape, y.shape)
 
         with torch.no_grad():
             for time_step in tqdm(reversed(range(0, self.T)), total=self.T):

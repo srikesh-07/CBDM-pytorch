@@ -119,9 +119,11 @@ def evaluate(sampler, model, sampled):
             for i in trange(0, FLAGS.num_images, FLAGS.batch_size, desc=desc):
                 batch_size = min(FLAGS.batch_size, FLAGS.num_images - i)
                 x_T = torch.randn((batch_size, 3, FLAGS.img_size, FLAGS.img_size))
+                y = [1 for _ in range(FLAGS.num_images)]
+                y = torch.tensor(y, dtype=torch.long).to(device)
                 batch_images, batch_labels = sampler(x_T.to(device),
                                                      omega=FLAGS.omega,
-                                                     method=FLAGS.sample_method)
+                                                     method=FLAGS.sample_method, y=y)
                 images.append((batch_images.cpu() + 1) / 2)
                 if FLAGS.sample_method!='uncond' and batch_labels is not None:
                     labels.append(batch_labels.cpu())
@@ -146,10 +148,10 @@ def evaluate(sampler, model, sampled):
                                                 FLAGS.sample_method, FLAGS.omega,
                                                 FLAGS.sample_name)))
     save_image(
-        torch.tensor(images[:256]),
+        torch.tensor(images[:20]),
         os.path.join(FLAGS.logdir, 'visual_ema_{}_{}_{}.png'.format(
                                     FLAGS.sample_method, FLAGS.omega, FLAGS.sample_name)),
-        nrow=16)
+        nrow=10)
 
     (IS, IS_std), FID, prd_score, ipr = get_inception_and_fid_score(
         images, labels, FLAGS.fid_cache, num_images=FLAGS.num_images,
@@ -368,7 +370,7 @@ def eval():
     model = UNet(
         T=FLAGS.T, ch=FLAGS.ch, ch_mult=FLAGS.ch_mult, attn=FLAGS.attn,
         num_res_blocks=FLAGS.num_res_blocks, dropout=FLAGS.dropout,
-        cond=FLAGS.conditional, augm=FLAGS.augm, num_class=FLAGS.num_class)
+        cond=FLAGS.conditional, augm=FLAGS.augm, num_class=2)
     sampler = GaussianDiffusionSampler(
         model, FLAGS.beta_1, FLAGS.beta_T, FLAGS.T, FLAGS.num_class, FLAGS.img_size, FLAGS.var_type).to(device)
 

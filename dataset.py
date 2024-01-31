@@ -23,7 +23,7 @@ class CatDogCIFAR10(datasets.CIFAR100):
         "md5": "5ff9c542aee3614f3951f8cda6e48888",
     }
     cls_num = 2
-    num_dogs = 50
+    num_dogs = 5
     num_cats = 5000
 
     def __init__(self, root, imb_type='exp', imb_factor=0.01, rand_number=0, train=True,
